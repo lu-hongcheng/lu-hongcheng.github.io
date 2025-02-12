@@ -3,7 +3,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://lu-hongcheng.github.io/</loc>
-    <lastmod>2025-02-11T16:49:44+08:00</lastmod>
+    <lastmod>2025-02-12T12:58:07+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -16,7 +16,7 @@
                 />
   </url><url>
     <loc>https://lu-hongcheng.github.io/categories/</loc>
-    <lastmod>2025-02-11T16:49:44+08:00</lastmod>
+    <lastmod>2025-02-12T12:58:07+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -28,13 +28,16 @@
                 href="https://lu-hongcheng.github.io/categories/"
                 />
   </url><url>
-    <loc>https://lu-hongcheng.github.io/p/cobra-in-%E4%BA%91%E5%8E%9F%E7%94%9F/</loc>
-    <lastmod>2025-02-11T16:49:44+08:00</lastmod>
-  </url><url>
     <loc>https://lu-hongcheng.github.io/categories/go/</loc>
-    <lastmod>2025-02-11T16:49:44+08:00</lastmod>
+    <lastmod>2025-02-12T12:58:07+08:00</lastmod>
+  </url><url>
+    <loc>https://lu-hongcheng.github.io/p/go-chi/</loc>
+    <lastmod>2025-02-12T12:58:07+08:00</lastmod>
   </url><url>
     <loc>https://lu-hongcheng.github.io/post/</loc>
+    <lastmod>2025-02-12T12:58:07+08:00</lastmod>
+  </url><url>
+    <loc>https://lu-hongcheng.github.io/p/cobra-in-%E4%BA%91%E5%8E%9F%E7%94%9F/</loc>
     <lastmod>2025-02-11T16:49:44+08:00</lastmod>
   </url><url>
     <loc>https://lu-hongcheng.github.io/archives/</loc>

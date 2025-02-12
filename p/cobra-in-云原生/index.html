@@ -273,6 +273,7 @@
     <li><a href="#1-项目启动">1. 项目启动</a></li>
     <li><a href="#2-创建命令">2. 创建命令</a>
       <ol>
+        <li><a href="#aioptions-配置">AIOptions 配置</a></li>
         <li><a href="#参数和标志">参数和标志</a></li>
       </ol>
     </li>
@@ -651,32 +652,99 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>创建 option -&gt; 补全 option -&gt; 校验 option -&gt; 用 option 启动 server （和 k8s-apiserver 代码格式一模一样）</p>
-<p>然后创建 <code>syncCmd</code> 添加到 rootCmd 中 <code>cmd.AddCommand(syncCmd)</code></p>
-<h3 id="参数和标志">参数和标志
-</h3><p>参数 ： <code>go run main.go add 3 5</code> args 数组将会包含以下内容 <code>args := []string{&quot;3&quot;, &quot;5&quot;}</code>，这个很少用，一般使用命令标志。</p>
-<p><code>cmd/karpor/app/syncer.go:41</code></p>
+<h3 id="aioptions-配置">AIOptions 配置
+</h3><p>这里看一下怎么配置 AIOption 的，我对这方面比较感兴趣
+<code>cmd/karpor/app/options/ai.go:43</code> 创建 AIOptions</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">options</span><span class="p">.</span><span class="nf">AddFlags</span><span class="p">(</span><span class="nx">cmd</span><span class="p">.</span><span class="nf">Flags</span><span class="p">())</span>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">AIOptions</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AIBackend</span>     <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AIAuthToken</span>   <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AIBaseURL</span>     <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AIModel</span>       <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AITemperature</span> <span class="kt">float32</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AITopP</span>        <span class="kt">float32</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// proxy options</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AIProxyEnabled</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AIHTTPProxy</span>    <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AIHTTPSProxy</span>   <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">AINoProxy</span>      <span class="kt">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">syncerOptions</span><span class="p">)</span> <span class="nf">AddFlags</span><span class="p">(</span><span class="nx">fs</span> <span class="o">*</span><span class="nx">pflag</span><span class="p">.</span><span class="nx">FlagSet</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">MetricsAddr</span><span class="p">,</span> <span class="s">&#34;metrics-bind-address&#34;</span><span class="p">,</span> <span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="s">&#34;The address the metric endpoint binds to.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">ProbeAddr</span><span class="p">,</span> <span class="s">&#34;health-probe-bind-address&#34;</span><span class="p">,</span> <span class="s">&#34;:8081&#34;</span><span class="p">,</span> <span class="s">&#34;The address the probe endpoint binds to.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringSliceVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">ElasticSearchAddresses</span><span class="p">,</span> <span class="s">&#34;elastic-search-addresses&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="s">&#34;The elastic search address.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewAIOptions</span><span class="p">()</span> <span class="o">*</span><span class="nx">AIOptions</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">AIOptions</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="参数和标志">参数和标志
+</h3><p>参数 ： <code>go run main.go add 3 5</code> args 数组将会包含以下内容 <code>args := []string{&quot;3&quot;, &quot;5&quot;}</code>，这个很少用，一般使用命令标志。</p>
+<p><code>cmd/karpor/app/options/ai.go:67</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">o</span><span class="p">.</span><span class="nx">AIOptions</span><span class="p">.</span><span class="nf">AddFlags</span><span class="p">(</span><span class="nx">fs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// AddFlags adds flags for a specific Option to the specified FlagSet</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">AIOptions</span><span class="p">)</span> <span class="nf">AddFlags</span><span class="p">(</span><span class="nx">fs</span> <span class="o">*</span><span class="nx">pflag</span><span class="p">.</span><span class="nx">FlagSet</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">o</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AIBackend</span><span class="p">,</span> <span class="s">&#34;ai-backend&#34;</span><span class="p">,</span> <span class="nx">defaultBackend</span><span class="p">,</span> <span class="s">&#34;The ai backend&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AIAuthToken</span><span class="p">,</span> <span class="s">&#34;ai-auth-token&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;The ai auth token&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AIBaseURL</span><span class="p">,</span> <span class="s">&#34;ai-base-url&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;The ai base url&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AIModel</span><span class="p">,</span> <span class="s">&#34;ai-model&#34;</span><span class="p">,</span> <span class="nx">defaultModel</span><span class="p">,</span> <span class="s">&#34;The ai model&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">Float32Var</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AITemperature</span><span class="p">,</span> <span class="s">&#34;ai-temperature&#34;</span><span class="p">,</span> <span class="nx">defaultTemperature</span><span class="p">,</span> <span class="s">&#34;The ai temperature&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">Float32Var</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AITopP</span><span class="p">,</span> <span class="s">&#34;ai-top-p&#34;</span><span class="p">,</span> <span class="nx">defaultTopP</span><span class="p">,</span> <span class="s">&#34;The ai top-p&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">BoolVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AIProxyEnabled</span><span class="p">,</span> <span class="s">&#34;ai-proxy-enabled&#34;</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="s">&#34;The ai proxy enable&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AIHTTPProxy</span><span class="p">,</span> <span class="s">&#34;ai-http-proxy&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;The ai http proxy&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AIHTTPSProxy</span><span class="p">,</span> <span class="s">&#34;ai-https-proxy&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;The ai https proxy&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fs</span><span class="p">.</span><span class="nf">StringVar</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">o</span><span class="p">.</span><span class="nx">AINoProxy</span><span class="p">,</span> <span class="s">&#34;ai-no-proxy&#34;</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;The ai no-proxy&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="3-运行命令">3. 运行命令
-</h2><div class="highlight"><div class="chroma">
+</h2><p>然后创建子命令 <code>syncCmd</code> 添加到 rootCmd 中 <code>cmd.AddCommand(syncCmd)</code></p>
+<div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
@@ -741,6 +809,28 @@
     
 
     
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/go-chi/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Go Chi</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
 
      
     
