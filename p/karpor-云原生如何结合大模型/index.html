@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-cn" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="karpor 云原生结合大模型\n最近在 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。\nserver 连接大模型 启动路由时会调用 NewAIManager pkg/core/manager/ai/manager.go:27\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 type AIManager struct { client ai.AIProvider } // NewAIManager returns a new AIManager object func NewAIManager(c registry.ExtraConfig) (*AIManager, error) { if c.AIAuthToken == &#34;&#34; { return nil, ErrMissingAuthToken } aiClient := ai.NewClient(c.AIBackend) if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil { return nil, err } return &amp;AIManager{ client: aiClient, }, nil } AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor\n">
-<title>Karpor</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="最近在看 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。\nserver 连接大模型 启动路由时会调用 NewAIManager pkg/core/manager/ai/manager.go:27\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 type AIManager struct { client ai.AIProvider } // NewAIManager returns a new AIManager object func NewAIManager(c registry.ExtraConfig) (*AIManager, error) { if c.AIAuthToken == &#34;&#34; { return nil, ErrMissingAuthToken } aiClient := ai.NewClient(c.AIBackend) if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil { return nil, err } return &amp;AIManager{ client: aiClient, }, nil } AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor\n">
+<title>karpor 云原生如何结合大模型</title>
 
-<link rel='canonical' href='https://lu-hongcheng.github.io/p/karpor/'>
+<link rel='canonical' href='https://lu-hongcheng.github.io/p/karpor-%E4%BA%91%E5%8E%9F%E7%94%9F%E5%A6%82%E4%BD%95%E7%BB%93%E5%90%88%E5%A4%A7%E6%A8%A1%E5%9E%8B/'>
 
-<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Karpor">
-<meta property='og:description' content="karpor 云原生结合大模型\n最近在 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。\nserver 连接大模型 启动路由时会调用 NewAIManager pkg/core/manager/ai/manager.go:27\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 type AIManager struct { client ai.AIProvider } // NewAIManager returns a new AIManager object func NewAIManager(c registry.ExtraConfig) (*AIManager, error) { if c.AIAuthToken == &#34;&#34; { return nil, ErrMissingAuthToken } aiClient := ai.NewClient(c.AIBackend) if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil { return nil, err } return &amp;AIManager{ client: aiClient, }, nil } AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor\n">
-<meta property='og:url' content='https://lu-hongcheng.github.io/p/karpor/'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="karpor 云原生如何结合大模型">
+<meta property='og:description' content="最近在看 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。\nserver 连接大模型 启动路由时会调用 NewAIManager pkg/core/manager/ai/manager.go:27\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 type AIManager struct { client ai.AIProvider } // NewAIManager returns a new AIManager object func NewAIManager(c registry.ExtraConfig) (*AIManager, error) { if c.AIAuthToken == &#34;&#34; { return nil, ErrMissingAuthToken } aiClient := ai.NewClient(c.AIBackend) if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil { return nil, err } return &amp;AIManager{ client: aiClient, }, nil } AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor\n">
+<meta property='og:url' content='https://lu-hongcheng.github.io/p/karpor-%E4%BA%91%E5%8E%9F%E7%94%9F%E5%A6%82%E4%BD%95%E7%BB%93%E5%90%88%E5%A4%A7%E6%A8%A1%E5%9E%8B/'>
 <meta property='og:site_name' content='lu-hongcheng'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-02-12T17:06:43&#43;08:00'/><meta property='article:modified_time' content='2025-02-12T17:06:43&#43;08:00'/>
-<meta name="twitter:title" content="Karpor">
-<meta name="twitter:description" content="karpor 云原生结合大模型\n最近在 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。\nserver 连接大模型 启动路由时会调用 NewAIManager pkg/core/manager/ai/manager.go:27\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 type AIManager struct { client ai.AIProvider } // NewAIManager returns a new AIManager object func NewAIManager(c registry.ExtraConfig) (*AIManager, error) { if c.AIAuthToken == &#34;&#34; { return nil, ErrMissingAuthToken } aiClient := ai.NewClient(c.AIBackend) if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil { return nil, err } return &amp;AIManager{ client: aiClient, }, nil } AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor\n">
+<meta name="twitter:title" content="karpor 云原生如何结合大模型">
+<meta name="twitter:description" content="最近在看 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。\nserver 连接大模型 启动路由时会调用 NewAIManager pkg/core/manager/ai/manager.go:27\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 type AIManager struct { client ai.AIProvider } // NewAIManager returns a new AIManager object func NewAIManager(c registry.ExtraConfig) (*AIManager, error) { if c.AIAuthToken == &#34;&#34; { return nil, ErrMissingAuthToken } aiClient := ai.NewClient(c.AIBackend) if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil { return nil, err } return &amp;AIManager{ client: aiClient, }, nil } AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor\n">
     <link rel="shortcut icon" href="/favicon.ico" />
 
     </head>
@@ -303,7 +303,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/karpor/">Karpor</a>
+            <a href="/p/karpor-%E4%BA%91%E5%8E%9F%E7%94%9F%E5%A6%82%E4%BD%95%E7%BB%93%E5%90%88%E5%A4%A7%E6%A8%A1%E5%9E%8B/">karpor 云原生如何结合大模型</a>
         </h2>
     
         
@@ -355,8 +355,7 @@
     <section class="article-content">
     
     
-    <p>karpor 云原生结合大模型</p>
-<p>最近在 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。</p>
+    <p>最近在看 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。</p>
 <h2 id="server-连接大模型">server 连接大模型
 </h2><p>启动路由时会调用 NewAIManager <code>pkg/core/manager/ai/manager.go:27</code></p>
 <div class="highlight"><div class="chroma">

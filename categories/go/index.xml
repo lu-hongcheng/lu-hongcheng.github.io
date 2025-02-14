@@ -8,13 +8,12 @@
         <language>zh-cn</language>
         <copyright>lu-hongcheng</copyright>
         <lastBuildDate>Wed, 12 Feb 2025 17:06:43 +0800</lastBuildDate><atom:link href="https://lu-hongcheng.github.io/categories/go/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>Karpor</title>
-        <link>https://lu-hongcheng.github.io/p/karpor/</link>
+        <title>karpor 云原生如何结合大模型</title>
+        <link>https://lu-hongcheng.github.io/p/karpor-%E4%BA%91%E5%8E%9F%E7%94%9F%E5%A6%82%E4%BD%95%E7%BB%93%E5%90%88%E5%A4%A7%E6%A8%A1%E5%9E%8B/</link>
         <pubDate>Wed, 12 Feb 2025 17:06:43 +0800</pubDate>
         
-        <guid>https://lu-hongcheng.github.io/p/karpor/</guid>
-        <description>&lt;p&gt;karpor 云原生结合大模型&lt;/p&gt;
-&lt;p&gt;最近在 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。&lt;/p&gt;
+        <guid>https://lu-hongcheng.github.io/p/karpor-%E4%BA%91%E5%8E%9F%E7%94%9F%E5%A6%82%E4%BD%95%E7%BB%93%E5%90%88%E5%A4%A7%E6%A8%A1%E5%9E%8B/</guid>
+        <description>&lt;p&gt;最近在看 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。&lt;/p&gt;
 &lt;h2 id=&#34;server-连接大模型&#34;&gt;server 连接大模型
 &lt;/h2&gt;&lt;p&gt;启动路由时会调用 NewAIManager &lt;code&gt;pkg/core/manager/ai/manager.go:27&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
