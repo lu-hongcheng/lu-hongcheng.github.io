@@ -6,6 +6,15 @@
         <description>Recent content in Tags on lu-hongcheng</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-cn</language>
-        <copyright>lu-hongcheng</copyright><atom:link href="https://lu-hongcheng.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+        <copyright>lu-hongcheng</copyright>
+        <lastBuildDate>Fri, 29 Aug 2025 20:19:27 +0800</lastBuildDate><atom:link href="https://lu-hongcheng.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Hugo-Template</title>
+        <link>https://lu-hongcheng.github.io/tags/hugo-template/</link>
+        <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
+        
+        <guid>https://lu-hongcheng.github.io/tags/hugo-template/</guid>
+        <description></description>
+        </item>
+        
     </channel>
 </rss>

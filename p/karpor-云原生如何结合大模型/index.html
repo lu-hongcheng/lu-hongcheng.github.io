@@ -6,11 +6,11 @@
 
 <link rel='canonical' href='https://lu-hongcheng.github.io/p/karpor-%E4%BA%91%E5%8E%9F%E7%94%9F%E5%A6%82%E4%BD%95%E7%BB%93%E5%90%88%E5%A4%A7%E6%A8%A1%E5%9E%8B/'>
 
-<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="karpor 云原生如何结合大模型">
+<link rel="stylesheet" href="/scss/style.min.946cca6c6259ef94ac55abfae7c7bf3291ea3ed5eea17ef77500b257217c6710.css"><meta property='og:title' content="karpor 云原生如何结合大模型">
 <meta property='og:description' content="最近在看 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。\nserver 连接大模型 启动路由时会调用 NewAIManager pkg/core/manager/ai/manager.go:27\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 type AIManager struct { client ai.AIProvider } // NewAIManager returns a new AIManager object func NewAIManager(c registry.ExtraConfig) (*AIManager, error) { if c.AIAuthToken == &#34;&#34; { return nil, ErrMissingAuthToken } aiClient := ai.NewClient(c.AIBackend) if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil { return nil, err } return &amp;AIManager{ client: aiClient, }, nil } AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor\n">
 <meta property='og:url' content='https://lu-hongcheng.github.io/p/karpor-%E4%BA%91%E5%8E%9F%E7%94%9F%E5%A6%82%E4%BD%95%E7%BB%93%E5%90%88%E5%A4%A7%E6%A8%A1%E5%9E%8B/'>
 <meta property='og:site_name' content='lu-hongcheng'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-02-12T17:06:43&#43;08:00'/><meta property='article:modified_time' content='2025-02-12T17:06:43&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-02-12T17:06:43&#43;08:00'/><meta property='article:modified_time' content='2025-02-14T17:06:10&#43;08:00'/>
 <meta name="twitter:title" content="karpor 云原生如何结合大模型">
 <meta name="twitter:description" content="最近在看 karpor 源码，对于他怎么结合大模型的手法比较感兴趣，读读源码，总结一下。\nserver 连接大模型 启动路由时会调用 NewAIManager pkg/core/manager/ai/manager.go:27\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 type AIManager struct { client ai.AIProvider } // NewAIManager returns a new AIManager object func NewAIManager(c registry.ExtraConfig) (*AIManager, error) { if c.AIAuthToken == &#34;&#34; { return nil, ErrMissingAuthToken } aiClient := ai.NewClient(c.AIBackend) if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil { return nil, err } return &amp;AIManager{ client: aiClient, }, nil } AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor\n">
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -198,29 +198,6 @@
         
         <li class="menu-bottom-section">
             <ol class="menu">
-                    
-                        <li id="i18n-switch">  
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M4 5h7" />
-  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
-  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
-  <path d="M12 20l4 -9l4 9" />
-  <path d="M19.1 18h-6.2" />
-</svg>
-
-
-
-                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
-                                
-                                    <option value="https://lu-hongcheng.github.io/en/" >English</option>
-                                
-                                    <option value="https://lu-hongcheng.github.io/" selected>中文</option>
-                                
-                            </select>
-                        </li>
-                    
-                
 
                 
                     <li id="dark-mode-toggle">
@@ -380,25 +357,25 @@
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">AIManager</span> <span class="kd">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">client</span> <span class="nx">ai</span><span class="p">.</span><span class="nx">AIProvider</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// NewAIManager returns a new AIManager object</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewAIManager</span><span class="p">(</span><span class="nx">c</span> <span class="nx">registry</span><span class="p">.</span><span class="nx">ExtraConfig</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">AIManager</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nx">AIAuthToken</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">ErrMissingAuthToken</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">aiClient</span> <span class="o">:=</span> <span class="nx">ai</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">AIBackend</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">aiClient</span><span class="p">.</span><span class="nf">Configure</span><span class="p">(</span><span class="nx">ai</span><span class="p">.</span><span class="nf">ConvertToAIConfig</span><span class="p">(</span><span class="nx">c</span><span class="p">));</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">AIManager</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">client</span><span class="p">:</span> <span class="nx">aiClient</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="p">},</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span><span class="w"> </span><span class="nx">AIManager</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">client</span><span class="w"> </span><span class="nx">ai</span><span class="p">.</span><span class="nx">AIProvider</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// NewAIManager returns a new AIManager object</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">NewAIManager</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="nx">registry</span><span class="p">.</span><span class="nx">ExtraConfig</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">AIManager</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">AIAuthToken</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">ErrMissingAuthToken</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">aiClient</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ai</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">AIBackend</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">aiClient</span><span class="p">.</span><span class="nf">Configure</span><span class="p">(</span><span class="nx">ai</span><span class="p">.</span><span class="nf">ConvertToAIConfig</span><span class="p">(</span><span class="nx">c</span><span class="p">));</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">AIManager</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">client</span><span class="p">:</span><span class="w"> </span><span class="nx">aiClient</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>AIProvider 接口如下，只要定义满足该接口的大模型 Client 都可以接入 karpor</p>
 <div class="highlight"><div class="chroma">
@@ -417,19 +394,19 @@
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// AIProvider is an interface all AI clients.</span>
-</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">AIProvider</span> <span class="kd">interface</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// Configure sets up the AI service with the provided configuration.</span>
-</span></span><span class="line"><span class="cl">	<span class="nf">Configure</span><span class="p">(</span><span class="nx">config</span> <span class="nx">AIConfig</span><span class="p">)</span> <span class="kt">error</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// Generate generates a response from the AI service based on</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// the provided prompt and service type.</span>
-</span></span><span class="line"><span class="cl">	<span class="nf">Generate</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">prompt</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// GenerateStream generates a streaming response from the AI service</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// based on the provided prompt. It returns a channel that will receive</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// chunks of the response as they are generated.</span>
-</span></span><span class="line"><span class="cl">	<span class="nf">GenerateStream</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">prompt</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">&lt;-</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// AIProvider is an interface all AI clients.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">type</span><span class="w"> </span><span class="nx">AIProvider</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Configure sets up the AI service with the provided configuration.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nf">Configure</span><span class="p">(</span><span class="nx">config</span><span class="w"> </span><span class="nx">AIConfig</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Generate generates a response from the AI service based on</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// the provided prompt and service type.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nf">Generate</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">prompt</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// GenerateStream generates a streaming response from the AI service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// based on the provided prompt. It returns a channel that will receive</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// chunks of the response as they are generated.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nf">GenerateStream</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">prompt</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">&lt;-</span><span class="kd">chan</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>以 openai client 为例
 <code>pkg/infra/ai/openai.go:31</code> 配置客户端</p>
@@ -458,28 +435,28 @@
 </span><span class="lnt">21
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">OpenAIClient</span><span class="p">)</span> <span class="nf">Configure</span><span class="p">(</span><span class="nx">cfg</span> <span class="nx">AIConfig</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">defaultConfig</span> <span class="o">:=</span> <span class="nx">openai</span><span class="p">.</span><span class="nf">DefaultConfig</span><span class="p">(</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">AuthToken</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">cfg</span><span class="p">.</span><span class="nx">BaseURL</span> <span class="o">!=</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">defaultConfig</span><span class="p">.</span><span class="nx">BaseURL</span> <span class="p">=</span> <span class="nx">cfg</span><span class="p">.</span><span class="nx">BaseURL</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">cfg</span><span class="p">.</span><span class="nx">ProxyEnabled</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">defaultConfig</span><span class="p">.</span><span class="nx">HTTPClient</span><span class="p">.</span><span class="nx">Transport</span> <span class="p">=</span> <span class="nf">GetProxyHTTPClient</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">client</span> <span class="o">:=</span> <span class="nx">openai</span><span class="p">.</span><span class="nf">NewClientWithConfig</span><span class="p">(</span><span class="nx">defaultConfig</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">client</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;error creating OpenAI client&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">.</span><span class="nx">client</span> <span class="p">=</span> <span class="nx">client</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">.</span><span class="nx">model</span> <span class="p">=</span> <span class="nx">cfg</span><span class="p">.</span><span class="nx">Model</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">.</span><span class="nx">temperature</span> <span class="p">=</span> <span class="nx">cfg</span><span class="p">.</span><span class="nx">Temperature</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">.</span><span class="nx">topP</span> <span class="p">=</span> <span class="nx">cfg</span><span class="p">.</span><span class="nx">TopP</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">OpenAIClient</span><span class="p">)</span><span class="w"> </span><span class="nf">Configure</span><span class="p">(</span><span class="nx">cfg</span><span class="w"> </span><span class="nx">AIConfig</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">defaultConfig</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">openai</span><span class="p">.</span><span class="nf">DefaultConfig</span><span class="p">(</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">AuthToken</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">BaseURL</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">defaultConfig</span><span class="p">.</span><span class="nx">BaseURL</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">BaseURL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">ProxyEnabled</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">defaultConfig</span><span class="p">.</span><span class="nx">HTTPClient</span><span class="p">.</span><span class="nx">Transport</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">GetProxyHTTPClient</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">client</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">openai</span><span class="p">.</span><span class="nf">NewClientWithConfig</span><span class="p">(</span><span class="nx">defaultConfig</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;error creating OpenAI client&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">client</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">c</span><span class="p">.</span><span class="nx">model</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Model</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">c</span><span class="p">.</span><span class="nx">temperature</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Temperature</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">c</span><span class="p">.</span><span class="nx">topP</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">TopP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="大模型生成回答">大模型生成回答
 </h3><div class="highlight"><div class="chroma">
@@ -507,28 +484,28 @@
 </span><span class="lnt">21
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">OpenAIClient</span><span class="p">)</span> <span class="nf">Generate</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">prompt</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">CreateChatCompletion</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">openai</span><span class="p">.</span><span class="nx">ChatCompletionRequest</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Model</span><span class="p">:</span> <span class="nx">c</span><span class="p">.</span><span class="nx">model</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Messages</span><span class="p">:</span> <span class="p">[]</span><span class="nx">openai</span><span class="p">.</span><span class="nx">ChatCompletionMessage</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Role</span><span class="p">:</span>    <span class="nx">openai</span><span class="p">.</span><span class="nx">ChatMessageRoleUser</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Content</span><span class="p">:</span> <span class="nx">prompt</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="p">},</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Temperature</span><span class="p">:</span> <span class="nx">c</span><span class="p">.</span><span class="nx">temperature</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">TopP</span><span class="p">:</span>        <span class="nx">c</span><span class="p">.</span><span class="nx">topP</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="p">})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">Choices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;no completion choices returned from response&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">Choices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">Message</span><span class="p">.</span><span class="nx">Content</span><span class="p">,</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">OpenAIClient</span><span class="p">)</span><span class="w"> </span><span class="nf">Generate</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">prompt</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">resp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">CreateChatCompletion</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">openai</span><span class="p">.</span><span class="nx">ChatCompletionRequest</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Model</span><span class="p">:</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">model</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Messages</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">openai</span><span class="p">.</span><span class="nx">ChatCompletionMessage</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Role</span><span class="p">:</span><span class="w">    </span><span class="nx">openai</span><span class="p">.</span><span class="nx">ChatMessageRoleUser</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Content</span><span class="p">:</span><span class="w"> </span><span class="nx">prompt</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Temperature</span><span class="p">:</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">temperature</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">TopP</span><span class="p">:</span><span class="w">        </span><span class="nx">c</span><span class="p">.</span><span class="nx">topP</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">Choices</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;no completion choices returned from response&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">Choices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">Message</span><span class="p">.</span><span class="nx">Content</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>流式</p>
 <div class="highlight"><div class="chroma">
@@ -584,56 +561,56 @@
 </span><span class="lnt">49
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">OpenAIClient</span><span class="p">)</span> <span class="nf">GenerateStream</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">prompt</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">&lt;-</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// Create chat completion stream with streaming enabled</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">stream</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">CreateChatCompletionStream</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">openai</span><span class="p">.</span><span class="nx">ChatCompletionRequest</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Model</span><span class="p">:</span> <span class="nx">c</span><span class="p">.</span><span class="nx">model</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Messages</span><span class="p">:</span> <span class="p">[]</span><span class="nx">openai</span><span class="p">.</span><span class="nx">ChatCompletionMessage</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Role</span><span class="p">:</span>    <span class="nx">openai</span><span class="p">.</span><span class="nx">ChatMessageRoleUser</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Content</span><span class="p">:</span> <span class="nx">prompt</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="p">},</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Temperature</span><span class="p">:</span> <span class="nx">c</span><span class="p">.</span><span class="nx">temperature</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">TopP</span><span class="p">:</span>        <span class="nx">c</span><span class="p">.</span><span class="nx">topP</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Stream</span><span class="p">:</span>      <span class="kc">true</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="p">})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// Create buffered channel for response chunks</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">resultChan</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// Start goroutine to handle streaming response</span>
-</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">resultChan</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">defer</span> <span class="nx">stream</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">response</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">stream</span><span class="p">.</span><span class="nf">Recv</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#34;EOF&#34;</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">					<span class="k">return</span>
-</span></span><span class="line"><span class="cl">				<span class="p">}</span>
-</span></span><span class="line"><span class="cl">				<span class="c1">// Send error as a special message</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">resultChan</span> <span class="o">&lt;-</span> <span class="s">&#34;ERROR: &#34;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">			<span class="c1">// Send non-empty content chunks</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">Choices</span><span class="p">)</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">chunk</span> <span class="o">:=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">Choices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">Delta</span><span class="p">.</span><span class="nx">Content</span>
-</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="nx">chunk</span> <span class="o">!=</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">					<span class="nx">resultChan</span> <span class="o">&lt;-</span> <span class="nx">chunk</span>
-</span></span><span class="line"><span class="cl">				<span class="p">}</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">resultChan</span><span class="p">,</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">OpenAIClient</span><span class="p">)</span><span class="w"> </span><span class="nf">GenerateStream</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">prompt</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">&lt;-</span><span class="kd">chan</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Create chat completion stream with streaming enabled</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">stream</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">CreateChatCompletionStream</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">openai</span><span class="p">.</span><span class="nx">ChatCompletionRequest</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Model</span><span class="p">:</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">model</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Messages</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">openai</span><span class="p">.</span><span class="nx">ChatCompletionMessage</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Role</span><span class="p">:</span><span class="w">    </span><span class="nx">openai</span><span class="p">.</span><span class="nx">ChatMessageRoleUser</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Content</span><span class="p">:</span><span class="w"> </span><span class="nx">prompt</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Temperature</span><span class="p">:</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">temperature</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">TopP</span><span class="p">:</span><span class="w">        </span><span class="nx">c</span><span class="p">.</span><span class="nx">topP</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Stream</span><span class="p">:</span><span class="w">      </span><span class="kc">true</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Create buffered channel for response chunks</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">resultChan</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">chan</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Start goroutine to handle streaming response</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">defer</span><span class="w"> </span><span class="nb">close</span><span class="p">(</span><span class="nx">resultChan</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">defer</span><span class="w"> </span><span class="nx">stream</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">response</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">stream</span><span class="p">.</span><span class="nf">Recv</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&#34;EOF&#34;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">					</span><span class="k">return</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="c1">// Send error as a special message</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">resultChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s">&#34;ERROR: &#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="c1">// Send non-empty content chunks</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">Choices</span><span class="p">)</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">chunk</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">Choices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">Delta</span><span class="p">.</span><span class="nx">Content</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="nx">chunk</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">					</span><span class="nx">resultChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">chunk</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">resultChan</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="大模型调用流程">大模型调用流程
 </h2><p>以 Pod 日志诊断为例</p>
@@ -702,67 +679,67 @@
 </span><span class="lnt">60
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// DiagnoseLogs analyzes pod logs using LLM and returns diagnostic information through a streaming channel</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">a</span> <span class="o">*</span><span class="nx">AIManager</span><span class="p">)</span> <span class="nf">DiagnoseLogs</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">logs</span> <span class="p">[]</span><span class="kt">string</span><span class="p">,</span> <span class="nx">language</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">eventChan</span> <span class="kd">chan</span><span class="o">&lt;-</span> <span class="o">*</span><span class="nx">DiagnosisEvent</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="nx">eventChan</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// Combine logs into a single string, limited to last 1000 lines</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">logs</span><span class="p">)</span> <span class="p">&gt;</span> <span class="mi">1000</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">logs</span> <span class="p">=</span> <span class="nx">logs</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">logs</span><span class="p">)</span><span class="o">-</span><span class="mi">1000</span><span class="p">:]</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">logsStr</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="nx">logs</span><span class="p">,</span> <span class="s">&#34;\n&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// Send start event</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">eventChan</span> <span class="o">&lt;-</span> <span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Type</span><span class="p">:</span>    <span class="s">&#34;start&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Content</span><span class="p">:</span> <span class="s">&#34;Starting log analysis...&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// Get prompt template and add language instruction</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">servicePrompt</span> <span class="o">:=</span> <span class="nx">ServicePromptMap</span><span class="p">[</span><span class="nx">LogDiagnosisType</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">language</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">language</span> <span class="p">=</span> <span class="s">&#34;English&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">prompt</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="nx">servicePrompt</span><span class="p">,</span> <span class="nx">language</span><span class="p">,</span> <span class="nx">logsStr</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// Generate diagnosis using LLM with streaming</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">stream</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">a</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">GenerateStream</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">prompt</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">errEvent</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Type</span><span class="p">:</span>    <span class="s">&#34;error&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Content</span><span class="p">:</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Failed to analyze logs: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">),</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">eventChan</span> <span class="o">&lt;-</span> <span class="nx">errEvent</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to generate log diagnosis: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">fullContent</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">chunk</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">stream</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">HasPrefix</span><span class="p">(</span><span class="nx">chunk</span><span class="p">,</span> <span class="s">&#34;ERROR:&#34;</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">errEvent</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Type</span><span class="p">:</span>    <span class="s">&#34;error&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Content</span><span class="p">:</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Failed to receive diagnosis: %v&#34;</span><span class="p">,</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimPrefix</span><span class="p">(</span><span class="nx">chunk</span><span class="p">,</span> <span class="s">&#34;ERROR: &#34;</span><span class="p">)),</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">eventChan</span> <span class="o">&lt;-</span> <span class="nx">errEvent</span>
-</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to receive diagnosis chunk: %v&#34;</span><span class="p">,</span> <span class="nx">chunk</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="nx">fullContent</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">chunk</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">eventChan</span> <span class="o">&lt;-</span> <span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Type</span><span class="p">:</span>    <span class="s">&#34;chunk&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Content</span><span class="p">:</span> <span class="nx">chunk</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// Send complete event</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">eventChan</span> <span class="o">&lt;-</span> <span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Type</span><span class="p">:</span>    <span class="s">&#34;complete&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Content</span><span class="p">:</span> <span class="nx">fullContent</span><span class="p">.</span><span class="nf">String</span><span class="p">(),</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// DiagnoseLogs analyzes pod logs using LLM and returns diagnostic information through a streaming channel</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="o">*</span><span class="nx">AIManager</span><span class="p">)</span><span class="w"> </span><span class="nf">DiagnoseLogs</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">logs</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">language</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">eventChan</span><span class="w"> </span><span class="kd">chan</span><span class="o">&lt;-</span><span class="w"> </span><span class="o">*</span><span class="nx">DiagnosisEvent</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nb">close</span><span class="p">(</span><span class="nx">eventChan</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Combine logs into a single string, limited to last 1000 lines</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">logs</span><span class="p">)</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">logs</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">logs</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">logs</span><span class="p">)</span><span class="o">-</span><span class="mi">1000</span><span class="p">:]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">logsStr</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="nx">logs</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;\n&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Send start event</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">eventChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Type</span><span class="p">:</span><span class="w">    </span><span class="s">&#34;start&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Content</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;Starting log analysis...&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Get prompt template and add language instruction</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">servicePrompt</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ServicePromptMap</span><span class="p">[</span><span class="nx">LogDiagnosisType</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">language</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">language</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;English&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">prompt</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="nx">servicePrompt</span><span class="p">,</span><span class="w"> </span><span class="nx">language</span><span class="p">,</span><span class="w"> </span><span class="nx">logsStr</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Generate diagnosis using LLM with streaming</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">stream</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nf">GenerateStream</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">prompt</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">errEvent</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Type</span><span class="p">:</span><span class="w">    </span><span class="s">&#34;error&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Content</span><span class="p">:</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Failed to analyze logs: %v&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">eventChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">errEvent</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to generate log diagnosis: %v&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">fullContent</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">chunk</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">stream</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nf">HasPrefix</span><span class="p">(</span><span class="nx">chunk</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;ERROR:&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">errEvent</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Type</span><span class="p">:</span><span class="w">    </span><span class="s">&#34;error&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Content</span><span class="p">:</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;Failed to receive diagnosis: %v&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nf">TrimPrefix</span><span class="p">(</span><span class="nx">chunk</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;ERROR: &#34;</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">eventChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">errEvent</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to receive diagnosis chunk: %v&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">chunk</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fullContent</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">chunk</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">eventChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Type</span><span class="p">:</span><span class="w">    </span><span class="s">&#34;chunk&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Content</span><span class="p">:</span><span class="w"> </span><span class="nx">chunk</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Send complete event</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">eventChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">DiagnosisEvent</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Type</span><span class="p">:</span><span class="w">    </span><span class="s">&#34;complete&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Content</span><span class="p">:</span><span class="w"> </span><span class="nx">fullContent</span><span class="p">.</span><span class="nf">String</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>感觉比较简洁明了，没有用到我以为比较复杂的 agent 功能，仅仅使用了大模型的 prompt 功能，可能是因为只需要大模型对日志进行分析，不需要更复杂的处理（可能大模型最主要的就是调 prompt 🤣）。（后续看下 k8sGPT，一般是怎么做的）</p>
 
@@ -784,7 +761,19 @@
 
         <span>Licensed under CC BY-NC-SA 4.0</span>
     </section>
-    </footer>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            最后更新于 Feb 14, 2025 17:06 &#43;0800
+        </span>
+    </section></footer>
 
 
     

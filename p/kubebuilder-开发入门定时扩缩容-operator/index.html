@@ -6,11 +6,11 @@
 
 <link rel='canonical' href='https://lu-hongcheng.github.io/p/kubebuilder-%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E6%89%A9%E7%BC%A9%E5%AE%B9-operator/'>
 
-<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Kubebuilder 开发入门——定时扩缩容 operator">
+<link rel="stylesheet" href="/scss/style.min.946cca6c6259ef94ac55abfae7c7bf3291ea3ed5eea17ef77500b257217c6710.css"><meta property='og:title' content="Kubebuilder 开发入门——定时扩缩容 operator">
 <meta property='og:description' content="kubebuilder 代码示例，定时扩缩容 operator\nb 站 https://www.bilibili.com/video/BV1jJ4m1j7gK 学习笔记 （只是学个 kubebuilder 入门手法，代码有些不严谨的地方，不必在意）\n1. 创建项目 1 2 3 4 5 6 mkdir deploy-scaler &amp;&amp; cd deploy-scaler kubebuilder init --domain scaler.com --repo github.com/lu-hongcheng/deploy-scaler k api-resources # 看看目前有哪些 api 资源 # 创建 API kubebuilder create api --kind Scaler --version v1alpha1 --group api 2. 设计 crd 字段 在 config/samples/api_v1alpha1_scaler.yaml 设计我们的 crd 字段\n">
 <meta property='og:url' content='https://lu-hongcheng.github.io/p/kubebuilder-%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E6%89%A9%E7%BC%A9%E5%AE%B9-operator/'>
 <meta property='og:site_name' content='lu-hongcheng'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-02-13T19:48:57&#43;08:00'/><meta property='article:modified_time' content='2025-02-13T19:48:57&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-02-13T19:48:57&#43;08:00'/><meta property='article:modified_time' content='2025-02-14T17:06:10&#43;08:00'/>
 <meta name="twitter:title" content="Kubebuilder 开发入门——定时扩缩容 operator">
 <meta name="twitter:description" content="kubebuilder 代码示例，定时扩缩容 operator\nb 站 https://www.bilibili.com/video/BV1jJ4m1j7gK 学习笔记 （只是学个 kubebuilder 入门手法，代码有些不严谨的地方，不必在意）\n1. 创建项目 1 2 3 4 5 6 mkdir deploy-scaler &amp;&amp; cd deploy-scaler kubebuilder init --domain scaler.com --repo github.com/lu-hongcheng/deploy-scaler k api-resources # 看看目前有哪些 api 资源 # 创建 API kubebuilder create api --kind Scaler --version v1alpha1 --group api 2. 设计 crd 字段 在 config/samples/api_v1alpha1_scaler.yaml 设计我们的 crd 字段\n">
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -198,29 +198,6 @@
         
         <li class="menu-bottom-section">
             <ol class="menu">
-                    
-                        <li id="i18n-switch">  
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M4 5h7" />
-  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
-  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
-  <path d="M12 20l4 -9l4 9" />
-  <path d="M19.1 18h-6.2" />
-</svg>
-
-
-
-                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
-                                
-                                    <option value="https://lu-hongcheng.github.io/en/" >English</option>
-                                
-                                    <option value="https://lu-hongcheng.github.io/" selected>中文</option>
-                                
-                            </select>
-                        </li>
-                    
-                
 
                 
                     <li id="dark-mode-toggle">
@@ -449,34 +426,34 @@ b 站 <a class="link" href="https://www.bilibili.com/video/BV1jJ4m1j7gK"  target
 </span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// scaler 增加 annotation ，保存原始的 replics 信息，方便回滚操作</span>
-</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">DeploymentInfo</span> <span class="kd">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Replicas</span>  <span class="kt">int32</span>  <span class="s">`json:&#34;replicas&#34;`</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Namespace</span> <span class="kt">string</span> <span class="s">`json:&#34;namespace&#34;`</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">NamespacedName</span> <span class="kd">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Namespace</span> <span class="kt">string</span> <span class="s">`json:&#34;namespace&#34;`</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Name</span>      <span class="kt">string</span> <span class="s">`json:&#34;name&#34;`</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// ScalerSpec defines the desired state of Scaler</span>
-</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">ScalerSpec</span> <span class="kd">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// Important: Run &#34;make&#34; to regenerate code after modifying this file</span>
-</span></span><span class="line"><span class="cl">	
-</span></span><span class="line"><span class="cl">	<span class="c1">// +kubebuilder:validation:Minimum=0</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// +kubebuilder:validation:Maximum=23</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// +kubebuilder:validation:Required</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Start</span>       <span class="kt">int</span>              <span class="s">`json:&#34;start&#34;`</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// +kubebuilder:validation:Minimum=0</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// +kubebuilder:validation:Maximum=24</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// +kubebuilder:validation:Required</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">End</span>         <span class="kt">int</span>              <span class="s">`json:&#34;end&#34;`</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Replicas</span>    <span class="kt">int32</span>            <span class="s">`json:&#34;replicas&#34;`</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Deployments</span> <span class="p">[]</span><span class="nx">NamespacedName</span> <span class="s">`json:&#34;deployments&#34;`</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// scaler 增加 annotation ，保存原始的 replics 信息，方便回滚操作</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">type</span><span class="w"> </span><span class="nx">DeploymentInfo</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Replicas</span><span class="w">  </span><span class="kt">int32</span><span class="w">  </span><span class="s">`json:&#34;replicas&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Namespace</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&#34;namespace&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">type</span><span class="w"> </span><span class="nx">NamespacedName</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Namespace</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&#34;namespace&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Name</span><span class="w">      </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&#34;name&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// ScalerSpec defines the desired state of Scaler</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">type</span><span class="w"> </span><span class="nx">ScalerSpec</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Important: Run &#34;make&#34; to regenerate code after modifying this file</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// +kubebuilder:validation:Minimum=0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// +kubebuilder:validation:Maximum=23</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// +kubebuilder:validation:Required</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Start</span><span class="w">       </span><span class="kt">int</span><span class="w">              </span><span class="s">`json:&#34;start&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// +kubebuilder:validation:Minimum=0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// +kubebuilder:validation:Maximum=24</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// +kubebuilder:validation:Required</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">End</span><span class="w">         </span><span class="kt">int</span><span class="w">              </span><span class="s">`json:&#34;end&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Replicas</span><span class="w">    </span><span class="kt">int32</span><span class="w">            </span><span class="s">`json:&#34;replicas&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Deployments</span><span class="w"> </span><span class="p">[]</span><span class="nx">NamespacedName</span><span class="w"> </span><span class="s">`json:&#34;deployments&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="增加-status-字段">增加 status 字段
 </h3><div class="highlight"><div class="chroma">
@@ -501,25 +478,25 @@ b 站 <a class="link" href="https://www.bilibili.com/video/BV1jJ4m1j7gK"  target
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">SCALED</span>   <span class="p">=</span> <span class="s">&#34;Scaled&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">FAILED</span>   <span class="p">=</span> <span class="s">&#34;Failed&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">PENDING</span>  <span class="p">=</span> <span class="s">&#34;Pending&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">RESTORED</span> <span class="p">=</span> <span class="s">&#34;Restored&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// ScalerStatus defines the observed state of Scaler</span>
-</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">ScalerStatus</span> <span class="kd">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// Important: Run &#34;make&#34; to regenerate code after modifying this file</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Status</span> <span class="kt">string</span> <span class="s">`json:&#34;status&#34;`</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">//+kubebuilder:object:root=true</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//+kubebuilder:subresource:status</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//+kubebuilder:printcolumn:name=&#34;Status&#34;,type=string,JSONPath=`.status.status`</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//+kubebuilder:printcolumn:name=&#34;Age&#34;,type=&#34;date&#34;,JSONPath=`.metadata.creationTimestamp`</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">SCALED</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;Scaled&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">FAILED</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;Failed&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">PENDING</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;Pending&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">RESTORED</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;Restored&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// ScalerStatus defines the observed state of Scaler</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">type</span><span class="w"> </span><span class="nx">ScalerStatus</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// Important: Run &#34;make&#34; to regenerate code after modifying this file</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Status</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&#34;status&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">//+kubebuilder:object:root=true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">//+kubebuilder:subresource:status</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">//+kubebuilder:printcolumn:name=&#34;Status&#34;,type=string,JSONPath=`.status.status`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">//+kubebuilder:printcolumn:name=&#34;Age&#34;,type=&#34;date&#34;,JSONPath=`.metadata.creationTimestamp`</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>注意每次修改 type 文件，需要使用 <code>make manifest</code> 在 <code>config/crd/bases/</code> 目录下生成新的 crd 描述文件，并 <code>kubectl apply -f config/crd/bases/api.scaler.com_scalers.yaml</code></p>
 <p>或者直接使用 <code>make install</code></p>
@@ -793,247 +770,247 @@ b 站 <a class="link" href="https://www.bilibili.com/video/BV1jJ4m1j7gK"  target
 </span><span class="lnt">240
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">controller</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;encoding/json&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">v1</span> <span class="s">&#34;k8s.io/api/apps/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/types&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">ctrl</span> <span class="s">&#34;sigs.k8s.io/controller-runtime&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/controller/controllerutil&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/log&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">apiv1alpha1</span> <span class="s">&#34;github.com/lu-hongcheng/deploy-scaler/api/v1alpha1&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">finalizer</span> <span class="p">=</span> <span class="s">&#34;scalers.api.scaler.com/finalizer&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">logger</span> <span class="p">=</span> <span class="nx">log</span><span class="p">.</span><span class="nx">Log</span><span class="p">.</span><span class="nf">WithName</span><span class="p">(</span><span class="s">&#34;scaler_controller&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">originalDeploymentInfo</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">DeploymentInfo</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">annotations</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// ScalerReconciler reconciles a Scaler object</span>
-</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">ScalerReconciler</span> <span class="kd">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">client</span><span class="p">.</span><span class="nx">Client</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Scheme</span> <span class="o">*</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Scheme</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">//+kubebuilder:rbac:groups=api.scaler.com,resources=scalers,verbs=get;list;watch;create;update;patch;delete</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//+kubebuilder:rbac:groups=api.scaler.com,resources=scalers/status,verbs=get;update;patch</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//+kubebuilder:rbac:groups=api.scaler.com,resources=scalers/finalizers,verbs=update</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// Reconcile is part of the main kubernetes reconciliation loop which aims to</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// move the current state of the cluster closer to the desired state.</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// TODO(user): Modify the Reconcile function to compare the state specified by</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// the Scaler object against the actual cluster state, and then</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// perform operations to make the cluster state reflect the state specified by</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// the user.</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// For more details, check Reconcile and its Result here:</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.17.3/pkg/reconcile</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">)</span> <span class="nf">Reconcile</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">req</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">log</span> <span class="o">:=</span> <span class="nx">logger</span><span class="p">.</span><span class="nf">WithValues</span><span class="p">(</span><span class="s">&#34;Request.Namespace&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span> <span class="s">&#34;Request.Name&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;Reconcile called&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;reconcile: %+v\n&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">//创建一个scaler实例</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">scaler</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="c1">//如果没有发现这个scaler实例，我们就用 client.IgnoreNotFound(err)来忽略错误，让进程不中断</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="nx">client</span><span class="p">.</span><span class="nf">IgnoreNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">.</span><span class="nx">DeletionTimestamp</span><span class="p">.</span><span class="nf">IsZero</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">!</span><span class="nx">controllerutil</span><span class="p">.</span><span class="nf">ContainsFinalizer</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span> <span class="nx">finalizer</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">controllerutil</span><span class="p">.</span><span class="nf">AddFinalizer</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span> <span class="nx">finalizer</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;add finalizer.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="nx">client</span><span class="p">.</span><span class="nf">IgnoreNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span> <span class="p">=</span> <span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">PENDING</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Status</span><span class="p">().</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="nx">client</span><span class="p">.</span><span class="nf">IgnoreNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">			<span class="c1">//将scaler中管理的deployments的副本数和namespace名称加到annotations里</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">addAnnotations</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="nx">client</span><span class="p">.</span><span class="nf">IgnoreNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="c1">//开始执行scaler的逻辑</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">startTime</span> <span class="o">:=</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Start</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">endTime</span> <span class="o">:=</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">End</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">replicas</span> <span class="o">:=</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="nx">currenHour</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Local</span><span class="p">().</span><span class="nf">Hour</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;currentTIme: %d&#34;</span><span class="p">,</span> <span class="nx">currenHour</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="c1">//从startime开始endtime为止</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">currenHour</span> <span class="o">&gt;=</span> <span class="nx">startTime</span> <span class="o">&amp;&amp;</span> <span class="nx">currenHour</span> <span class="p">&lt;</span> <span class="nx">endTime</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span> <span class="o">!=</span> <span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">SCALED</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;starting to call scaleDeployment func.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">err</span> <span class="o">:=</span> <span class="nf">scaleDeployment</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">,</span> <span class="nx">replicas</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">					<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">				<span class="p">}</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span> <span class="o">==</span> <span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">SCALED</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nf">restoreDeployment</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;starting deletion flow.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span> <span class="o">==</span> <span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">SCALED</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;restore Deployment.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">err</span> <span class="o">:=</span> <span class="nf">restoreDeployment</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;remove finalizer.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">controllerutil</span><span class="p">.</span><span class="nf">RemoveFinalizer</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span> <span class="nx">finalizer</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">err</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;finalizer removed.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">controllerutil</span><span class="p">.</span><span class="nf">RemoveFinalizer</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span> <span class="nx">finalizer</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">err</span> <span class="p">=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;finalizer removed.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;scaler removed.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{</span><span class="nx">RequeueAfter</span><span class="p">:</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Duration</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)},</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// 回滚</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">restoreDeployment</span><span class="p">(</span><span class="nx">scaler</span> <span class="o">*</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">,</span> <span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">logger</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;starting to return to the original state&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">originalDeployInfo</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">originalDeploymentInfo</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">deployment</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Name</span><span class="p">:</span>      <span class="nx">name</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Namespace</span><span class="p">:</span> <span class="nx">originalDeployInfo</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span> <span class="nx">deployment</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="nx">originalDeployInfo</span><span class="p">.</span><span class="nx">Replicas</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">originalDeployInfo</span><span class="p">.</span><span class="nx">Replicas</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">deployment</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span> <span class="p">=</span> <span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">RESTORED</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Status</span><span class="p">().</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">scaleDeployment</span><span class="p">(</span><span class="nx">scaler</span> <span class="o">*</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">,</span> <span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">replicas</span> <span class="kt">int32</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//从scaler实例中遍历deployments</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">deploy</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Deployments</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="c1">//创建一个新的deployment实例</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">deployment</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Name</span><span class="p">:</span>      <span class="nx">deploy</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Namespace</span><span class="p">:</span> <span class="nx">deploy</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span> <span class="nx">deployment</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="c1">//判断当前k8s集群中的deployment副本数是否等于scaler中指定的副本数</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span> <span class="o">!=</span> <span class="nx">replicas</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span> <span class="p">=</span> <span class="nx">replicas</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">deployment</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span> <span class="p">=</span> <span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">FAILED</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">r</span><span class="p">.</span><span class="nf">Status</span><span class="p">().</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">			<span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span> <span class="p">=</span> <span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">SCALED</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">r</span><span class="p">.</span><span class="nf">Status</span><span class="p">().</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">addAnnotations</span><span class="p">(</span><span class="nx">scaler</span> <span class="o">*</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">,</span> <span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//记录deployments的原始副本数和namespace名称</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">deploy</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Deployments</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">deployment</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Name</span><span class="p">:</span>      <span class="nx">deploy</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Namespace</span><span class="p">:</span> <span class="nx">deploy</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span> <span class="nx">deployment</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="c1">//开始记录</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span> <span class="o">!=</span> <span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">logger</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;add original state to originalDeploymentInfo map.&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">originalDeploymentInfo</span><span class="p">[</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Name</span><span class="p">]</span> <span class="p">=</span> <span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">DeploymentInfo</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Namespace</span><span class="p">:</span> <span class="nx">deployment</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Replicas</span><span class="p">:</span>  <span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">//将原始记录加到annotations里</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">deploymentName</span><span class="p">,</span> <span class="nx">info</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">originalDeploymentInfo</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="c1">//将info转换为json</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">infoJson</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">info</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">		<span class="c1">//将infoJson存到annotations map里</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">annotations</span><span class="p">[</span><span class="nx">deploymentName</span><span class="p">]</span> <span class="p">=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">infoJson</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">//更新scaler的annotations</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">scaler</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">.</span><span class="nx">Annotations</span> <span class="p">=</span> <span class="nx">annotations</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">scaler</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// SetupWithManager sets up the controller with the Manager.</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">)</span> <span class="nf">SetupWithManager</span><span class="p">(</span><span class="nx">mgr</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">Manager</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nf">NewControllerManagedBy</span><span class="p">(</span><span class="nx">mgr</span><span class="p">).</span>
-</span></span><span class="line"><span class="cl">		<span class="nf">For</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">{}).</span>
-</span></span><span class="line"><span class="cl">		<span class="nf">Complete</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">controller</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;context&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;encoding/json&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">v1</span><span class="w"> </span><span class="s">&#34;k8s.io/api/apps/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/types&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">ctrl</span><span class="w"> </span><span class="s">&#34;sigs.k8s.io/controller-runtime&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/controller/controllerutil&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/log&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;time&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">apiv1alpha1</span><span class="w"> </span><span class="s">&#34;github.com/lu-hongcheng/deploy-scaler/api/v1alpha1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">const</span><span class="w"> </span><span class="nx">finalizer</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;scalers.api.scaler.com/finalizer&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">var</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">log</span><span class="p">.</span><span class="nx">Log</span><span class="p">.</span><span class="nf">WithName</span><span class="p">(</span><span class="s">&#34;scaler_controller&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">var</span><span class="w"> </span><span class="nx">originalDeploymentInfo</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">DeploymentInfo</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">var</span><span class="w"> </span><span class="nx">annotations</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// ScalerReconciler reconciles a Scaler object</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">type</span><span class="w"> </span><span class="nx">ScalerReconciler</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">client</span><span class="p">.</span><span class="nx">Client</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Scheme</span><span class="w"> </span><span class="o">*</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Scheme</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">//+kubebuilder:rbac:groups=api.scaler.com,resources=scalers,verbs=get;list;watch;create;update;patch;delete</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">//+kubebuilder:rbac:groups=api.scaler.com,resources=scalers/status,verbs=get;update;patch</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">//+kubebuilder:rbac:groups=api.scaler.com,resources=scalers/finalizers,verbs=update</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// Reconcile is part of the main kubernetes reconciliation loop which aims to</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// move the current state of the cluster closer to the desired state.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// TODO(user): Modify the Reconcile function to compare the state specified by</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// the Scaler object against the actual cluster state, and then</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// perform operations to make the cluster state reflect the state specified by</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// the user.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1">// For more details, check Reconcile and its Result here:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.17.3/pkg/reconcile</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">)</span><span class="w"> </span><span class="nf">Reconcile</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">log</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">logger</span><span class="p">.</span><span class="nf">WithValues</span><span class="p">(</span><span class="s">&#34;Request.Namespace&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;Request.Name&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;Reconcile called&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;reconcile: %+v\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//创建一个scaler实例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">scaler</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="cp">//如果没有发现这个scaler实例，我们就用 client.IgnoreNotFound(err)来忽略错误，让进程不中断</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nf">IgnoreNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">.</span><span class="nx">DeletionTimestamp</span><span class="p">.</span><span class="nf">IsZero</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">controllerutil</span><span class="p">.</span><span class="nf">ContainsFinalizer</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">finalizer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">controllerutil</span><span class="p">.</span><span class="nf">AddFinalizer</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">finalizer</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;add finalizer.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nf">IgnoreNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">PENDING</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Status</span><span class="p">().</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nf">IgnoreNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="cp">//将scaler中管理的deployments的副本数和namespace名称加到annotations里</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">addAnnotations</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nf">IgnoreNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="cp">//开始执行scaler的逻辑</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">startTime</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Start</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">endTime</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">End</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">replicas</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">currenHour</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Local</span><span class="p">().</span><span class="nf">Hour</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;currentTIme: %d&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">currenHour</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="cp">//从startime开始endtime为止</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">currenHour</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">startTime</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">currenHour</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">endTime</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">SCALED</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;starting to call scaleDeployment func.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">scaleDeployment</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">replicas</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">					</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">SCALED</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nf">restoreDeployment</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;starting deletion flow.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">SCALED</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;restore Deployment.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">restoreDeployment</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;remove finalizer.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">controllerutil</span><span class="p">.</span><span class="nf">RemoveFinalizer</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">finalizer</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;finalizer removed.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">controllerutil</span><span class="p">.</span><span class="nf">RemoveFinalizer</span><span class="p">(</span><span class="nx">scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">finalizer</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;finalizer removed.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;scaler removed.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{</span><span class="nx">RequeueAfter</span><span class="p">:</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nf">Duration</span><span class="p">(</span><span class="mi">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)},</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 回滚</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">restoreDeployment</span><span class="p">(</span><span class="nx">scaler</span><span class="w"> </span><span class="o">*</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">logger</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;starting to return to the original state&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">originalDeployInfo</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">originalDeploymentInfo</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">deployment</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Name</span><span class="p">:</span><span class="w">      </span><span class="nx">name</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">originalDeployInfo</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w"> </span><span class="nx">deployment</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">originalDeployInfo</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">originalDeployInfo</span><span class="p">.</span><span class="nx">Replicas</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">RESTORED</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Status</span><span class="p">().</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">scaleDeployment</span><span class="p">(</span><span class="nx">scaler</span><span class="w"> </span><span class="o">*</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">replicas</span><span class="w"> </span><span class="kt">int32</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//从scaler实例中遍历deployments</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">deploy</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Deployments</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="cp">//创建一个新的deployment实例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">deployment</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Name</span><span class="p">:</span><span class="w">      </span><span class="nx">deploy</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">deploy</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="cp">//判断当前k8s集群中的deployment副本数是否等于scaler中指定的副本数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">replicas</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">replicas</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">FAILED</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">r</span><span class="p">.</span><span class="nf">Status</span><span class="p">().</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Status</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">SCALED</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">r</span><span class="p">.</span><span class="nf">Status</span><span class="p">().</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">addAnnotations</span><span class="p">(</span><span class="nx">scaler</span><span class="w"> </span><span class="o">*</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//记录deployments的原始副本数和namespace名称</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">deploy</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Deployments</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">deployment</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Name</span><span class="p">:</span><span class="w">      </span><span class="nx">deploy</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">deploy</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w"> </span><span class="nx">deployment</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="cp">//开始记录</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">scaler</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">logger</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;add original state to originalDeploymentInfo map.&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">originalDeploymentInfo</span><span class="p">[</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Name</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">DeploymentInfo</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Replicas</span><span class="p">:</span><span class="w">  </span><span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//将原始记录加到annotations里</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">deploymentName</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">originalDeploymentInfo</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="cp">//将info转换为json</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">infoJson</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">info</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="cp">//将infoJson存到annotations map里</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">annotations</span><span class="p">[</span><span class="nx">deploymentName</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">string</span><span class="p">(</span><span class="nx">infoJson</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//更新scaler的annotations</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">scaler</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">.</span><span class="nx">Annotations</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">annotations</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">scaler</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// SetupWithManager sets up the controller with the Manager.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ScalerReconciler</span><span class="p">)</span><span class="w"> </span><span class="nf">SetupWithManager</span><span class="p">(</span><span class="nx">mgr</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Manager</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nf">NewControllerManagedBy</span><span class="p">(</span><span class="nx">mgr</span><span class="p">).</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nf">For</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">apiv1alpha1</span><span class="p">.</span><span class="nx">Scaler</span><span class="p">{}).</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nf">Complete</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>本地运行测试</p>
 <div class="highlight"><div class="chroma">
@@ -1084,7 +1061,19 @@ b 站 <a class="link" href="https://www.bilibili.com/video/BV1jJ4m1j7gK"  target
 
         <span>Licensed under CC BY-NC-SA 4.0</span>
     </section>
-    </footer>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            最后更新于 Feb 14, 2025 17:06 &#43;0800
+        </span>
+    </section></footer>
 
 
     
